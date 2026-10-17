@@ -1,5 +1,7 @@
 <?php
 /* Plugin Name: RS Hello */
 add_shortcode('rs_hello', function () {
-    return '<p>Hello from Real Steels lab.</p>';
+
+    return '<p>Hello from Real Steels lab — edited locally.</p>';
+
 });
