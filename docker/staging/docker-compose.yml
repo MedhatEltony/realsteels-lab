@@ -1,0 +1,50 @@
+x-wp-env: &wp-env
+  WORDPRESS_DB_HOST: db
+  WORDPRESS_DB_NAME: wordpress
+  WORDPRESS_DB_USER: wp
+  WORDPRESS_DB_PASSWORD: ${DB_PASSWORD}
+  WORDPRESS_CONFIG_EXTRA: |
+    define('WP_ENVIRONMENT_TYPE', 'staging');
+    define('DISALLOW_FILE_EDIT', true);
+    define('WP_ALLOW_MULTISITE', true);
+    define('MULTISITE', true);
+    define('SUBDOMAIN_INSTALL', false);
+    define('DOMAIN_CURRENT_SITE', 'staging.realsteels.local');
+    define('PATH_CURRENT_SITE', '/');
+    define('SITE_ID_CURRENT_SITE', 1);
+    define('BLOG_ID_CURRENT_SITE', 1);
+
+services:
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wp
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+
+  wordpress:
+    image: wordpress:php8.2-apache
+    restart: unless-stopped
+    depends_on: [db]
+    ports:
+      - "127.0.0.2:80:80"
+    environment: *wp-env
+    volumes:
+      - wp_data:/var/www/html
+
+  wpcli:
+    image: wordpress:cli-php8.2
+    profiles: [tools]
+    user: "33:33"
+    depends_on: [db]
+    environment: *wp-env
+    volumes:
+      - wp_data:/var/www/html
+
+volumes:
+  db_data:
+  wp_data:
